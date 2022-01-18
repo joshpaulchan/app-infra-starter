@@ -1,0 +1,34 @@
+{{- if .Values.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}-api
+  namespace: {{ .Release.Namespace }}
+  labels:
+{{- include "chart.labels" . | indent 4 }}
+    app.kubernetes.io/name: api
+    app.kubernetes.io/component: api
+  annotations:
+  {{- range $key, $value := .Values.ingress.annotations }}
+     {{ $key }}: {{ $value }}
+  {{- end }}
+spec:
+  ingressClassName: "nginx-dos"
+  {{- if .Values.ingress.tlsEnabled }}
+  tls:
+  - hosts:
+    - {{ print .Values.ingress.subDomain .Release.Name "." .Values.ingress.topLevelDomain }}
+    secretName: {{ .Release.Name }}-api-cert
+  {{ end }}
+  rules:
+  - host: {{ print .Values.ingress.subDomain .Release.Name "." .Values.ingress.topLevelDomain }}
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ .Release.Name }}-api
+            port:
+              name: http
+{{- end }}

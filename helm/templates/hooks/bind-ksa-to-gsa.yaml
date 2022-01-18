@@ -1,0 +1,32 @@
+{{- if and .Values.serviceAccount.create .Values.serviceAccount.gke.bindKSAToGSA }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "{{ .Release.Name }}-bind-ksa-to-gsa"
+  labels:
+{{- include "chart.labels" . | indent 4 }}
+  annotations:
+    # This is what defines this resource as a hook. Without this line, the
+    # job is considered part of the release.
+    "helm.sh/hook": "post-upgrade,post-install"
+    "helm.sh/hook-delete-policy": "hook-succeeded,hook-failed"
+spec:
+  template:
+    metadata:
+      name: "{{ .Release.Name }}-bind-ksa-to-gsa"
+      labels:
+{{- include "chart.labels" . | indent 8 }}
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: bind-ksa-to-gsa
+        image: joshpaulchan/gcloud:latest
+        command:
+        - gcloud
+        - iam
+        - service-accounts
+        - add-iam-policy-binding
+        - "--role=roles/iam.workloadIdentityUser"
+        - '--member="serviceAccount:joshpaulchan.svc.id.goog[{{ .Release.Namespace }}/{{ include "helm.serviceAccountName" . }}]"'
+        - {{ get .Values.serviceAccount.annotations "iam.gke.io/gcp-service-account" }}
+{{- end}}

@@ -1,0 +1,13 @@
+image:
+  pullPolicy: Always
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: 0.8.0
+
+app:
+  debug: True
+
+ingress:
+  enabled: true
+
+postgresql:
+  managedInCluster: true

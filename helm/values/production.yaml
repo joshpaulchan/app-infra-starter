@@ -1,0 +1,4 @@
+
+ingress:
+  subDomain: "api."
+  topLevelDomain: "joshpaulchan.com"
