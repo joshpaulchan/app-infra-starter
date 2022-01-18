@@ -1,0 +1,92 @@
+kind: pipeline
+type: kubernetes
+name: teardown
+
+steps:
+- name: notify/start
+  image: appleboy/drone-discord
+  settings:
+    webhook_id:
+        from_secret: DISCORD_WEBHOOK_ID
+    webhook_token:
+        from_secret: DISCORD_WEBHOOK_TOKEN
+    message: >
+      `{{commit.author}}` is tearing down `{{repo.fullName}}` in `{{build.deployTo}}` ({{build.link}})
+- name: setup
+  image: joshpaulchan/gcloud:latest
+  environment:
+    GOOGLE_SERVICE_ACCOUNT_EMAIL:
+      from_secret: GOOGLE_SERVICE_ACCOUNT_EMAIL
+    GOOGLE_SERVICE_ACCOUNT_KEY:
+      from_secret: GOOGLE_SERVICE_ACCOUNT_KEY
+    GOOGLE_APPLICATION_CREDENTIALS: google_service_account_application_credentials.json
+  volumes:
+    - name: gcloud-config
+      path: /root/.config/gcloud
+    - name: k8s-config
+      path: /root/.kube
+  commands:
+    - echo $SHELL; echo $-; whoami # shell, what flags, and whoami
+    # NOTE: ok so currently gets the job done although slightly awkward. In the future it would be better to have
+    # the image use bash instead of shell to let us just echo to file instead of needing to an external + a heredoc to do it.
+    - bash .ci/write-key.sh $GOOGLE_APPLICATION_CREDENTIALS
+    - gcloud auth activate-service-account $GOOGLE_SERVICE_ACCOUNT_EMAIL --key-file=$GOOGLE_APPLICATION_CREDENTIALS
+    - gcloud info; gcloud auth list
+    - if [ $DRONE_BRANCH != "main" ]; then export DRONE_DEPLOY_TO="staging"; echo $DRONE_BRANCH | tr "/" "-" > .ci/.tags; fi # if not main, set to staging and use the same docker tag for images
+    - echo "Loading target variables from infra/targets/$DRONE_DEPLOY_TO"; . infra/targets/$DRONE_DEPLOY_TO.sh
+    - gcloud container clusters get-credentials $CLUSTER --zone $ZONE
+  depends_on:
+    - notify/start
+- name: helm
+  image: joshpaulchan/gcloud:latest
+  volumes:
+    - name: gcloud-config
+      path: /root/.config/gcloud
+    - name: k8s-config
+      path: /root/.kube
+  environment:
+    GOOGLE_APPLICATION_CREDENTIALS: google_service_account_application_credentials.json
+  commands:
+    - if [ $DRONE_BRANCH != "main" ]; then export DRONE_DEPLOY_TO="staging"; fi
+    - echo "Loading target variables from /infra/targets/$DRONE_DEPLOY_TO"; . infra/targets/$DRONE_DEPLOY_TO.sh; echo $CLUSTER; echo $NAMESPACE; echo $RELEASE
+    - helm dep up infra/helm/ # `up` vs `build` same issue as the lint step
+    - helm secrets uninstall $RELEASE_NAME
+  depends_on:
+    - setup
+- name: notify/end
+  image: appleboy/drone-discord
+  settings:
+    webhook_id:
+        from_secret: DISCORD_WEBHOOK_ID
+    webhook_token:
+        from_secret: DISCORD_WEBHOOK_TOKEN
+    message: >
+        {{#success build.status}}
+          `{{commit.author}}`'s teardown of `{{repo.fullName}}` in `{{build.deployTo}}` succeeded. ({{build.link}})
+        {{else}}
+          `{{commit.author}}`'s teardown of `{{repo.fullName}}` in `{{build.deployTo}}` failed. ({{build.link}})
+        {{/success}}
+  depends_on:
+    - helm
+  when:
+    status:
+      - success
+      - failure
+
+volumes:
+- name: gcloud-config
+  temp: {}
+- name: k8s-config
+  temp: {}
+
+depends_on:
+  - build
+
+trigger:
+  event:
+    - pull_request
+  action:
+    - closed
+  target:
+    exclude:
+      - release

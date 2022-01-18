@@ -1,0 +1,34 @@
+kind: pipeline
+type: kubernetes
+name: release
+
+steps:
+- name: bump release version
+  image: python:3.8
+  commands:
+  - pip install pipenv
+  - pipenv install --dev
+  # TODO: fetch bump type from env, commit message, or PR label
+  - pipenv run bump2version --config-file .ci/.bumpversion.cfg minor
+  - cp .ci/.tags .tags # move it to main workspace
+- name: build and upload docker image
+  image: plugins/gcr
+  settings:
+    repo: joshpaulchan/pantheon-api
+    json_key:
+      from_secret: google_credentials
+- name: upload release
+  image: appleboy/drone-git-push
+  settings:
+    ssh_key: ${github_deploy_key}
+    branch: ${DRONE_BRANCH}
+    remote_name: origin
+    followtags: true
+
+trigger:
+  branch:
+    - main
+  event:
+    - promote
+  target:
+    - release

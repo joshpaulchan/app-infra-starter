@@ -1,0 +1,103 @@
+kind: pipeline
+type: kubernetes
+name: deploy
+
+environment:
+  DEPLOY_USING: deploy/helm
+
+steps:
+- name: notify/start
+  image: appleboy/drone-discord
+  settings:
+    webhook_id:
+        from_secret: DISCORD_WEBHOOK_ID
+    webhook_token:
+        from_secret: DISCORD_WEBHOOK_TOKEN
+    message: >
+      `{{commit.author}}` is deploying `{{repo.fullName}}` to `{{build.deployTo}}` ({{build.link}})
+- name: setup
+  image: joshpaulchan/gcloud:latest
+  environment:
+    GOOGLE_SERVICE_ACCOUNT_EMAIL:
+      from_secret: GOOGLE_SERVICE_ACCOUNT_EMAIL
+    GOOGLE_SERVICE_ACCOUNT_KEY:
+      from_secret: GOOGLE_SERVICE_ACCOUNT_KEY
+    GOOGLE_APPLICATION_CREDENTIALS: google_service_account_application_credentials.json
+  volumes:
+    - name: gcloud-config
+      path: /root/.config/gcloud
+    - name: k8s-config
+      path: /root/.kube
+  commands:
+    - echo $SHELL; echo $-; whoami # shell, what flags, and whoami
+    # NOTE: ok so currently gets the job done although slightly awkward. In the future it would be better to have
+    # the image use bash instead of shell to let us just echo to file instead of needing to an external + a heredoc to do it.
+    - bash .ci/write-key.sh $GOOGLE_APPLICATION_CREDENTIALS
+    - gcloud auth activate-service-account $GOOGLE_SERVICE_ACCOUNT_EMAIL --key-file=$GOOGLE_APPLICATION_CREDENTIALS
+    - gcloud info; gcloud auth list
+    # if branch is main, set target to production, otherwise staging (NOTE: would be nice to also specify arbitrary environment)
+    - if [ "$DRONE_BRANCH" = "main" ]; then export DRONE_DEPLOY_TO="production"; else export DRONE_DEPLOY_TO="staging"; fi
+    - echo export DRONE_DEPLOY_TO=$DRONE_DEPLOY_TO > .ci/drone_deploy_to # write it out to file for use in next step
+    # if version specified, set that as the image to deploy
+    - if [ -n "$DEPLOY_VERSION" ]; then echo $DEPLOY_VERSION | tr "/" "-" > .ci/.tags; echo "Using DEPLOY_VERSION $(cat .ci/.tags)"; fi
+    # if version unspecified && not main, set the dev branch as the image to deploy;
+    # otherwise if unspecified and main use the current release (aka do nothing)
+    - if [ -z "$DEPLOY_VERSION" ] && [ "$DRONE_BRANCH" != "main" ]; then echo $DRONE_BRANCH | tr "/" "-" > .ci/.tags; echo "No DEPLOY_VERSION specified; using $(cat .ci/.tags)"; fi
+    - echo "Loading target variables from infra/targets/$DRONE_DEPLOY_TO"; . infra/targets/$DRONE_DEPLOY_TO.sh
+    - gcloud container clusters get-credentials $CLUSTER --zone $ZONE
+  depends_on:
+    - start
+- name: deploy/helm
+  image: joshpaulchan/gcloud:latest
+  volumes:
+    - name: gcloud-config
+      path: /root/.config/gcloud
+    - name: k8s-config
+      path: /root/.kube
+  environment:
+    GOOGLE_APPLICATION_CREDENTIALS: google_service_account_application_credentials.json
+  commands:
+    - if [ $DEPLOY_USING != $DRONE_STEP_NAME ]; then echo "Skipping $DRONE_STEP_NAME, using $DEPLOY_USING"; exit 0; fi
+    # load up target environment specified in setup
+    - . .ci/drone_deploy_to
+    - echo "Loading target variables from /infra/targets/$DRONE_DEPLOY_TO"; . infra/targets/$DRONE_DEPLOY_TO.sh; echo "Cluster $CLUSTER"; echo "Namespace $NAMESPACE"; echo "Release $RELEASE_NAME"; echo "Version $(cat .ci/.tags)"
+    - helm dep up infra/helm/ # `up` vs `build` same issue as the lint step
+    - helm secrets upgrade $RELEASE_NAME infra/helm/ --atomic --cleanup-on-fail --install -n $NAMESPACE -f infra/helm/values/$DRONE_DEPLOY_TO.yaml -f infra/helm/secrets/$DRONE_DEPLOY_TO.yaml --set image.tag=$(cat .ci/.tags)
+  depends_on:
+    - setup
+- name: notify/end
+  image: appleboy/drone-discord
+  settings:
+    webhook_id:
+        from_secret: DISCORD_WEBHOOK_ID
+    webhook_token:
+        from_secret: DISCORD_WEBHOOK_TOKEN
+    message: >
+        {{#success build.status}}
+          `{{commit.author}}`'s `{{repo.fullName}}` deploy to `{{build.deployTo}}` succeeded. ({{build.link}})
+        {{else}}
+          `{{commit.author}}`'s `{{repo.fullName}}` deploy to `{{build.deployTo}}` failed. ({{build.link}})
+        {{/success}}
+  depends_on:
+    - helm
+  when:
+    status:
+      - success
+      - failure
+
+volumes:
+- name: gcloud-config
+  temp: {}
+- name: k8s-config
+  temp: {}
+
+depends_on:
+  - build
+
+trigger:
+  event:
+    - push # FIXME: don't listen to pushes, only listen to promotions but trigger promotions from GH events
+    - promote
+  target:
+    exclude:
+      - release
