@@ -15,7 +15,7 @@ spec:
       labels:
 {{- include "app-infra-starter.labels" . | indent 8 }}
     spec:
-      serviceAccountName: {{ include "helm.serviceAccountName" . }}
+      serviceAccountName: {{ include "app-infra-starter.serviceAccountName" . }}
       containers:
         - image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}

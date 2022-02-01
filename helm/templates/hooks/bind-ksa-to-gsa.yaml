@@ -27,6 +27,6 @@ spec:
         - service-accounts
         - add-iam-policy-binding
         - "--role=roles/iam.workloadIdentityUser"
-        - '--member="serviceAccount:joshpaulchan.svc.id.goog[{{ .Release.Namespace }}/{{ include "helm.serviceAccountName" . }}]"'
+        - '--member="serviceAccount:joshpaulchan.svc.id.goog[{{ .Release.Namespace }}/{{ include "app-infra-starter.serviceAccountName" . }}]"'
         - {{ get .Values.serviceAccount.annotations "iam.gke.io/gcp-service-account" }}
 {{- end}}

@@ -33,7 +33,7 @@ Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 If release name contains chart name it will be used as a full name.
 */}}
-{{- define "helm.fullname" -}}
+{{- define "app-infra-starter.fullName" -}}
 {{- if .Values.fullnameOverride }}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
@@ -50,9 +50,9 @@ If release name contains chart name it will be used as a full name.
 Create the name of the service account to use
 provides a unique serviceAccount name for the namespace, release and given servicea account name.
 */}}
-{{- define "helm.serviceAccountName" -}}
+{{- define "app-infra-starter.serviceAccountName" -}}
 {{- if .Values.serviceAccount.create }}
-{{- default (include "helm.fullname" .) (print .Release.Namespace "-" .Release.Name "-" .Values.serviceAccount.name) }}
+{{- default (include "app-infra-starter.fullName" .) (print .Release.Namespace "-" .Release.Name "-" .Values.serviceAccount.name) }}
 {{- else }}
 {{- default "default" (print .Release.Namespace "-" .Release.Name "-" .Values.serviceAccount.name) }}
 {{- end }}
