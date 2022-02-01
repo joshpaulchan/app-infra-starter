@@ -14,8 +14,14 @@ image:
 component: "api"
 
 app:
-  debug: False
+  config:
+    DJANGO_SETTINGS_MODULE: "pantheon.settings.base"
+    SITE_URL: "https://api.pantheon.joshpaulchan.com"
+    DEBUG: False
 
+    HOST: "0.0.0.0"
+    PORT: 8000
+  
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""

@@ -6,13 +6,6 @@ metadata:
   labels:
 {{- include "app-infra-starter.labels" . | indent 4 }}
 data:
-  DJANGO_SETTINGS_MODULE: "pantheon.settings.base"
-  SITE_URL: "https://api.pantheon.joshpaulchan.com"
-  DEBUG: {{ .Values.app.debug | quote }}
-
-  HOST: 0.0.0.0
-  PORT: {{ .Values.service.port | quote }}
-
   # if managed-in-cluster, point us to that postgres subchart service, otherwise, point us to localhost
   POSTGRES_HOST: {{if .Values.postgresql.managedByApp }}{{ .Release.Name }}-postgresql{{else}}localhost{{end}}
   POSTGRES_PORT: {{ .Values.postgresql.service.port | quote }}
@@ -21,3 +14,5 @@ data:
   REDIS_HOST: {{ .Release.Name }}-redis
   REDIS_PORT: {{ .Values.redis.service.port | quote }}
   {{- end }}
+  
+  {{- toYaml .Values.app.config }}
