@@ -2,7 +2,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ .Release.Name }}-api
+  name: {{ .Release.Name }}-{{ .Values.component }}
   namespace: {{ .Release.Namespace }}
   labels:
 {{- include "chart.labels" . | indent 4 }}
@@ -18,7 +18,7 @@ spec:
   tls:
   - hosts:
     - {{ print .Values.ingress.subDomain .Release.Name "." .Values.ingress.topLevelDomain }}
-    secretName: {{ .Release.Name }}-api-cert
+    secretName: {{ .Release.Name }}-{{ .Values.component }}-cert
   {{ end }}
   rules:
   - host: {{ print .Values.ingress.subDomain .Release.Name "." .Values.ingress.topLevelDomain }}
@@ -28,7 +28,7 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: {{ .Release.Name }}-api
+            name: {{ .Release.Name }}-{{ .Values.component }}
             port:
               name: http
 {{- end }}

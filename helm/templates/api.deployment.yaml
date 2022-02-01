@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-api
+  name: {{ .Release.Name }}-{{ .Values.component }}
   namespace: {{ .Release.Namespace }}
   labels:
 {{- include "chart.labels" . | indent 4 }}
@@ -25,12 +25,12 @@ spec:
       containers:
         - image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          name: {{ .Release.Name }}-api
+          name: {{ .Release.Name }}-{{ .Values.component }}
           envFrom:
             - configMapRef:
-                name: {{ .Release.Name }}-api
+                name: {{ .Release.Name }}-{{ .Values.component }}
             - secretRef:
-                name: {{ .Release.Name }}-api
+                name: {{ .Release.Name }}-{{ .Values.component }}
           {{- if .Values.image.command }}
           command:
             {{- range .Values.image.command }}
