@@ -1,14 +1,32 @@
-# define common labels
-{{- define "chart.labels" }}
-helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
-app.kubernetes.io/managed-by: {{ .Release.Service }}
-app.kubernetes.io/instance: {{ .Release.Name }}
-app.kubernetes.io/version: {{ .Chart.AppVersion }}
-app.kubernetes.io/part-of: {{ .Chart.Name }}
-generator: helm
-app.kubernetes.io/name: {{ .Values.component | quote }}
+{{/*
+Expand the name of the chart.
+*/}}
+{{- define "app-infra-startre.name" -}}
+{{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
+Selector labels
+*/}}
+{{- define "app-infra-starter.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "app-infra-starter.name" . }}
 app.kubernetes.io/component: {{ .Values.component | quote }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/part-of: {{ .Chart.Name }}
+{{- end -}}
+
+{{/*
+Common labels
+*/}}
+{{- define "app-infra-starter.labels" -}}
+helm.sh/chart: {{ include "app-infra-starter.chart" . }}
+{{ include "app-infra-starter.selectorLabels" . }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+generator: "helm"
+{{- end -}}
 
 {{/*
 Create a default fully qualified app name.
