@@ -5,8 +5,6 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
 {{- include "chart.labels" . | indent 4 }}
-    app.kubernetes.io/name: "api"
-    app.kubernetes.io/component: "api"
 data:
   DJANGO_SETTINGS_MODULE: "pantheon.settings.base"
   SITE_URL: "https://api.pantheon.joshpaulchan.com"

@@ -5,21 +5,15 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
 {{- include "chart.labels" . | indent 4 }}
-    app.kubernetes.io/name: api
-    app.kubernetes.io/component: api
 spec:
   selector:
     matchLabels:
 {{- include "chart.labels" . | indent 6 }}
-      app.kubernetes.io/name: api
-      app.kubernetes.io/component: api
   strategy: {}
   template:
     metadata:
       labels:
 {{- include "chart.labels" . | indent 8 }}
-        app.kubernetes.io/name: api
-        app.kubernetes.io/component: api
     spec:
       serviceAccountName: {{ include "helm.serviceAccountName" . }}
       containers:

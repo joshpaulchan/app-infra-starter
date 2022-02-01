@@ -6,9 +6,8 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/version: {{ .Chart.AppVersion }}
 app.kubernetes.io/part-of: {{ .Chart.Name }}
 generator: helm
-# the following are commented out, because they may vary based on sub chart / component in the deployment
-# app.kubernetes.io/name: "api" 
-# app.kubernetes.io/component: "api"
+app.kubernetes.io/name: {{ .Values.component | quote }}
+app.kubernetes.io/component: {{ .Values.component | quote }}
 {{- end }}
 
 {{/*

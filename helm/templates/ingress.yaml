@@ -5,9 +5,7 @@ metadata:
   name: {{ .Release.Name }}-{{ .Values.component }}
   namespace: {{ .Release.Namespace }}
   labels:
-{{- include "chart.labels" . | indent 4 }}
-    app.kubernetes.io/name: api
-    app.kubernetes.io/component: api
+{{- include "chart.labels" . | indent 4 }} 
   annotations:
   {{- range $key, $value := .Values.ingress.annotations }}
      {{ $key }}: {{ $value }}
