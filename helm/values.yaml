@@ -21,6 +21,8 @@ app:
 
     HOST: "0.0.0.0"
     PORT: 8000
+  secret:
+    SECRET_KEY: "secretsecret!"
   
 imagePullSecrets: []
 nameOverride: ""
