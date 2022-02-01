@@ -16,7 +16,7 @@ data:
   PORT: {{ .Values.service.port | quote }}
 
   # if managed-in-cluster, point us to that postgres subchart service, otherwise, point us to localhost
-  POSTGRES_HOST: {{if .Values.postgresql.managedInCluster }}{{ .Release.Name }}-postgresql{{else}}localhost{{end}}
+  POSTGRES_HOST: {{if .Values.postgresql.managedByApp }}{{ .Release.Name }}-postgresql{{else}}localhost{{end}}
   POSTGRES_PORT: {{ .Values.postgresql.service.port | quote }}
 
   {{- if .Values.redis.enabled }}

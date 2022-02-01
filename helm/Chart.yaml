@@ -30,7 +30,7 @@ appVersion: 0.1.0
 dependencies:
   - name: postgresql
     version: 10.9.1
-    condition: postgresql.managedInCluster
+    condition: postgresql.managedByApp
     repository: https://charts.bitnami.com/bitnami
   - name: redis
     version: 15.7.5
