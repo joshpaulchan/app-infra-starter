@@ -10,8 +10,10 @@ image:
   # Overrides the image tag whose default is the chart appVersion.
   tag: 0.11.0
 
+# describe the component this chart is for - an api, a worker, etc.
+component: "api"
+
 app:
-  component: "api"
   debug: False
 
 imagePullSecrets: []
