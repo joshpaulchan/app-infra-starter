@@ -5,7 +5,7 @@ metadata:
   name: {{ .Release.Name }}-{{ .Values.component }}
   namespace: {{ .Release.Namespace }}
   labels:
-{{- include "chart.labels" . | indent 4 }} 
+{{- include "app-infra-starter.labels" . | indent 4 }} 
   annotations:
   {{- range $key, $value := .Values.ingress.annotations }}
      {{ $key }}: {{ $value }}

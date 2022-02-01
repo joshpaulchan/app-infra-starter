@@ -4,16 +4,16 @@ metadata:
   name: {{ .Release.Name }}-{{ .Values.component }}
   namespace: {{ .Release.Namespace }}
   labels:
-{{- include "chart.labels" . | indent 4 }}
+{{- include "app-infra-starter.labels" . | indent 4 }}
 spec:
   selector:
     matchLabels:
-{{- include "chart.labels" . | indent 6 }}
+{{- include "app-infra-starter.selectorLabels" . | indent 6 }}
   strategy: {}
   template:
     metadata:
       labels:
-{{- include "chart.labels" . | indent 8 }}
+{{- include "app-infra-starter.labels" . | indent 8 }}
     spec:
       serviceAccountName: {{ include "helm.serviceAccountName" . }}
       containers:
