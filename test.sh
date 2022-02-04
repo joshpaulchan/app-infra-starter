@@ -17,6 +17,9 @@ helm secrets upgrade $RELEASE_NAME \
     --cleanup-on-fail \
     --install \
     -n $NAMESPACE \
+    -f ../pantheon-api/infra/helm/values.yaml \
     -f ../pantheon-api/infra/helm/values/$DRONE_DEPLOY_TO.yaml \
     -f ../pantheon-api/infra/helm/secrets/$DRONE_DEPLOY_TO.yaml \
+    --debug \
+    --dry-run \
     --set image.tag=$(cat ../pantheon-api/.ci/.tags)
