@@ -8,8 +8,8 @@ Expand the name of the chart.
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "app-infra-starter.name" -}}
-{{- printf "%s-%s-%s" .Chart.Name .Values.component .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
+{{- define "app-infra-starter.chart" -}}
+{{- printf "%s-%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
