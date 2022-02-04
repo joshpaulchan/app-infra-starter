@@ -1,8 +1,15 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "app-infra-startre.name" -}}
+{{- define "app-infra-starter.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
+Create chart name and version as used by the chart label.
+*/}}
+{{- define "app-infra-starter.name" -}}
+{{- printf "%s-%s-%s" .Chart.Name .Values.component .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
