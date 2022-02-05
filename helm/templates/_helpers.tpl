@@ -9,7 +9,7 @@ Expand the name of the chart.
 Create chart name and version as used by the chart label.
 */}}
 {{- define "app-infra-starter.chart" -}}
-{{- printf "%s-%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
+{{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-"  -}}
 {{- end -}}
 
 {{/*
@@ -17,9 +17,9 @@ Selector labels
 */}}
 {{- define "app-infra-starter.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "app-infra-starter.name" . }}
-app.kubernetes.io/component: {{ .Values.component | quote }}
-app.kubernetes.io/instance: {{ .Release.Name }}
-app.kubernetes.io/part-of: {{ .Chart.Name }}
+app.kubernetes.io/component: {{ default "app" .Values.component | quote }}
+app.kubernetes.io/instance: {{ .Release.Name | quote }}
+app.kubernetes.io/part-of: {{ .Chart.Name | quote }}
 {{- end -}}
 
 {{/*
