@@ -5,10 +5,6 @@ export CLUSTER="universe-616"
 export ZONE="us-east1-b"
 export NAMESPACE="default"
 
-echo "building chart"
-helm package helm/
-helm push app-infra-starter-0.1.0.tgz oci://us-central1-docker.pkg.dev/joshpaulchan/helm-repo
-
 echo "testing"
 helm secrets upgrade $RELEASE_NAME \
     oci://us-central1-docker.pkg.dev/joshpaulchan/helm-repo/app-infra-starter \
