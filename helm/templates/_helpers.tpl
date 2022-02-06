@@ -1,8 +1,8 @@
 {{/*
-Expand the name of the chart.
+Expand the name of the application.
 */}}
 {{- define "app-infra-starter.name" -}}
-{{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
+{{- default .Release.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
@@ -19,7 +19,7 @@ Selector labels
 app.kubernetes.io/name: {{ include "app-infra-starter.name" . }}
 app.kubernetes.io/component: {{ default "app" .Values.component | quote }}
 app.kubernetes.io/instance: {{ .Release.Name | quote }}
-app.kubernetes.io/part-of: {{ .Chart.Name | quote }}
+app.kubernetes.io/part-of: {{ .Release.Name | quote }}
 {{- end -}}
 
 {{/*
