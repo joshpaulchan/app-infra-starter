@@ -10,7 +10,7 @@ data:
   POSTGRES_HOST: {{if .Values.postgresql.managedByApp }}{{ .Release.Name }}-postgresql{{else}}localhost{{end}}
   POSTGRES_PORT: {{ .Values.postgresql.service.port | quote }}
   {{- if .Values.redis.enabled }}
-  REDIS_HOST: {{ .Release.Name }}-redis
+  REDIS_HOST: {{ .Release.Name }}-redis-master
   REDIS_PORT: {{ .Values.redis.service.port | quote }}
   {{- end }}
   {{/* would be nice to use toYaml, but that's a PITA somehow? */}}
