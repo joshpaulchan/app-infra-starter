@@ -10,3 +10,11 @@ You can look up the particular config:
 - https://github.com/bitnami/charts/tree/master/bitnami/postgresql/
 
 Credential injection is done here by injecting the values into the config being passed to the application.
+
+## Persistence
+
+Also might have some PVs/ PVCs sticking around. Find and delete them:
+
+```
+kubectl delete pvc -l app.kubernetes.io/instance=feature-extracted-helm-chart
+```
