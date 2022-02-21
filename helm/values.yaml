@@ -80,6 +80,7 @@ autoscaling:
   # targetMemoryUtilizationPercentage: 80
 
 livenessProbe:
+  enabled: true
   initialDelaySeconds: 30
   periodSeconds: 30
   timeoutSeconds: 2
