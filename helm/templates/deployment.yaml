@@ -31,6 +31,12 @@ spec:
             - {{ . }}
             {{- end }}
           {{ end }}
+          {{- if .Values.image.args }}
+          args:
+            {{- range .Values.image.args }}
+            - {{ . }}
+            {{- end }}
+          {{ end }}
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}
