@@ -51,7 +51,7 @@ spec:
           {{- end }}
         {{- $relname := print .Release.Name "-postgresql" -}}
         {{- with .Values.postgresql }}
-        {{- if not .managedByApp }}
+        {{- if and (not .managedByApp) .gcpProxy.enabled }}
         - name: {{ $relname }}
           image: {{ .gcpProxy.image.repository }}:{{ .gcpProxy.image.tag }}
           {{- if .gcpProxy.image.command }}
