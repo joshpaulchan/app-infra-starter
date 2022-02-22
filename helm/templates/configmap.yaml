@@ -7,7 +7,7 @@ metadata:
     {{- include "app-infra-starter.labels" . | nindent 4 }}
 data:
   # if managed-in-cluster, point us to that postgres subchart service, otherwise, point us to the proxy sidecar @ localhost
-  POSTGRES_HOST: {{if .Values.postgresql.managedByApp }}{{ .Release.Name }}-postgresql{{else}}localhost{{end}}
+  POSTGRES_HOST: {{if .Values.postgresql.managedByApp }}{{ .Release.Name }}-postgresql{{else if .Values.postgresql.parentComponent}}{{print (.Release.Name | trimSuffix .Values.component) .Values.postgresql.parentComponent "-postgresql"}}{{else}}localhost{{end}}
   POSTGRES_PORT: {{ .Values.postgresql.service.port | quote }}
   {{- if or .Values.redis.enabled .Values.redis.parentComponent }}
   # if a sub component, then trim our component off the release name (if that exists) then replace it with parent component
