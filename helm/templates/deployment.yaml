@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-{{ .Values.component }}
+  name: {{ .Release.Name }}
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "app-infra-starter.labels" . | nindent 4 }}
@@ -22,9 +22,9 @@ spec:
           name: {{ .Values.component }}
           envFrom:
             - configMapRef:
-                name: {{ .Release.Name }}-{{ .Values.component }}
+                name: {{ .Release.Name }}
             - secretRef:
-                name: {{ .Release.Name }}-{{ .Values.component }}
+                name: {{ .Release.Name }}
           {{- if .Values.image.command }}
           command:
             {{- range .Values.image.command }}
