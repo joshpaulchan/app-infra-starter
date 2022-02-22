@@ -97,6 +97,8 @@ redis:
   parentComponent: ""
   service:
     port: 6379
+  auth:
+    enabled: false
 
 postgresql:
   managedByApp: false
