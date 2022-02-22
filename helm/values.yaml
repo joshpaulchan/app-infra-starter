@@ -94,6 +94,7 @@ affinity: {}
 redis:
   enabled: true
   # NOTE: we don't support externally managed Redis atm.
+  parentComponent: "api"
   service:
     port: 6379
 

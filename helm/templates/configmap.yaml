@@ -10,7 +10,8 @@ data:
   POSTGRES_HOST: {{if .Values.postgresql.managedByApp }}{{ .Release.Name }}-postgresql{{else}}localhost{{end}}
   POSTGRES_PORT: {{ .Values.postgresql.service.port | quote }}
   {{- if .Values.redis.enabled }}
-  REDIS_HOST: {{ .Release.Name }}-redis-master
+  # if a sub component, then trim our component off the release name (if that exists) then replace it with parent component
+  REDIS_HOST: {{- if .Values.redis.parentComponent }}{{ .Release.Name | trimSuffix .Values.component | cat .Values.redis.parentComponent "-redis-master"  }}{{else}}{{ .Release.Name }}-redis-master{{end}}
   REDIS_PORT: {{ .Values.redis.service.port | quote }}
   {{- end }}
   {{/* would be nice to use toYaml, but that's a PITA somehow? */}}
