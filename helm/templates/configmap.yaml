@@ -6,7 +6,7 @@ metadata:
   labels:
     {{- include "app-infra-starter.labels" . | nindent 4 }}
 data:
-  # if managed-in-cluster, point us to that postgres subchart service, otherwise, point us to localhost
+  # if managed-in-cluster, point us to that postgres subchart service, otherwise, point us to the proxy sidecar @ localhost
   POSTGRES_HOST: {{if .Values.postgresql.managedByApp }}{{ .Release.Name }}-postgresql{{else}}localhost{{end}}
   POSTGRES_PORT: {{ .Values.postgresql.service.port | quote }}
   {{- if or .Values.redis.enabled .Values.redis.parentComponent }}
