@@ -15,11 +15,11 @@ spec:
   {{- if .Values.ingress.tlsEnabled }}
   tls:
   - hosts:
-    - {{ include "app-infra-starter.serviceAccountName" . }}
+    - {{ include "app-infra-starter.ingressHost" . }}
     secretName: {{ .Release.Name }}-cert
   {{ end }}
   rules:
-  - host: {{ include "app-infra-starter.serviceAccountName" . }}
+  - host: {{ include "app-infra-starter.ingressHost" . }}
     http:
       paths:
       - path: /
