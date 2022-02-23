@@ -68,8 +68,8 @@ provides a unique serviceAccount name for the namespace, release and given servi
 
 {{- define "app-infra-starter.ingressHost" -}}
 {{- if .Values.ingress.nameOverride }}
-{{ .Values.ingress.nameOverride }}
-{{- else}}
-{{ print .Values.ingress.subDomain .Release.Name "." .Values.ingress.topLevelDomain }}
+{{- print .Values.ingress.nameOverride }}
+{{- else }}
+{{- print .Values.ingress.subDomain .Release.Name "." .Values.ingress.topLevelDomain }}
 {{- end }}
 {{- end }}
