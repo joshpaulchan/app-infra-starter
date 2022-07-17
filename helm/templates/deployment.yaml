@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-{{ .Values.component }}
+  name: {{ .Release.Name }}
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "app-infra-starter.labels" . | nindent 4 }}
@@ -22,18 +22,25 @@ spec:
           name: {{ .Values.component }}
           envFrom:
             - configMapRef:
-                name: {{ .Release.Name }}-{{ .Values.component }}
+                name: {{ .Release.Name }}
             - secretRef:
-                name: {{ .Release.Name }}-{{ .Values.component }}
+                name: {{ .Release.Name }}
           {{- if .Values.image.command }}
           command:
             {{- range .Values.image.command }}
             - {{ . }}
             {{- end }}
           {{ end }}
+          {{- if .Values.image.args }}
+          args:
+            {{- range .Values.image.args }}
+            - {{ . }}
+            {{- end }}
+          {{ end }}
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}
+          {{- if .Values.livenessProbe.enabled }}
           livenessProbe:
             httpGet:
               path: /healthcheck/
@@ -41,9 +48,10 @@ spec:
             initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
             periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
             timeoutSeconds: {{ .Values.livenessProbe.timeoutSeconds }}
+          {{- end }}
         {{- $relname := print .Release.Name "-postgresql" -}}
         {{- with .Values.postgresql }}
-        {{- if not .managedByApp }}
+        {{- if and (not .managedByApp) .gcpProxy.enabled }}
         - name: {{ $relname }}
           image: {{ .gcpProxy.image.repository }}:{{ .gcpProxy.image.tag }}
           {{- if .gcpProxy.image.command }}

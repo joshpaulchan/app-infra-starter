@@ -80,6 +80,7 @@ autoscaling:
   # targetMemoryUtilizationPercentage: 80
 
 livenessProbe:
+  enabled: true
   initialDelaySeconds: 30
   periodSeconds: 30
   timeoutSeconds: 2
@@ -93,14 +94,18 @@ affinity: {}
 redis:
   enabled: true
   # NOTE: we don't support externally managed Redis atm.
+  parentComponent: ""
   service:
     port: 6379
+  auth:
+    enabled: false
 
 postgresql:
   managedByApp: false
   gcpProxy:
     # It is recommended to use the latest version of the Cloud SQL proxy
     # Make sure to update on a regular schedule!
+    enabled: true
     image:
       repository: gcr.io/cloudsql-docker/gce-proxy
       tag: 1.17

@@ -2,7 +2,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ .Release.Name }}-{{ .Values.component }}
+  name: {{ .Release.Name }}
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "app-infra-starter.labels" . | nindent 4 }} 
@@ -15,18 +15,18 @@ spec:
   {{- if .Values.ingress.tlsEnabled }}
   tls:
   - hosts:
-    - {{ print .Values.ingress.subDomain .Release.Name "." .Values.ingress.topLevelDomain }}
-    secretName: {{ .Release.Name }}-{{ .Values.component }}-cert
+    - {{ include "app-infra-starter.ingressHost" . }}
+    secretName: {{ .Release.Name }}-cert
   {{ end }}
   rules:
-  - host: {{ print .Values.ingress.subDomain .Release.Name "." .Values.ingress.topLevelDomain }}
+  - host: {{ include "app-infra-starter.ingressHost" . }}
     http:
       paths:
       - path: /
         pathType: Prefix
         backend:
           service:
-            name: {{ .Release.Name }}-{{ .Values.component }}
+            name: {{ .Release.Name }}
             port:
               name: http
 {{- end }}

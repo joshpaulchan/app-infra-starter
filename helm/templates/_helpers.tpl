@@ -64,3 +64,12 @@ provides a unique serviceAccount name for the namespace, release and given servi
 {{- default "default" (print .Release.Namespace "-" .Release.Name "-" .Values.serviceAccount.name) }}
 {{- end }}
 {{- end }}
+
+
+{{- define "app-infra-starter.ingressHost" -}}
+{{- if .Values.ingress.nameOverride }}
+{{- print .Values.ingress.nameOverride }}
+{{- else }}
+{{- print .Values.ingress.subDomain .Release.Name "." .Values.ingress.topLevelDomain }}
+{{- end }}
+{{- end }}
